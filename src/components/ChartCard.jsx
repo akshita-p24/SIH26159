@@ -9,14 +9,14 @@ export default function ChartCard({
   bodyClassName = 'p-5'
 }) {
   return (
-    <div className={`enterprise-card bg-white flex flex-col ${className}`}>
-      <div className="px-5 py-4 border-b border-[#E5DFD8] flex items-center justify-between">
+    <div className={`enterprise-card bg-white rounded-[22px] border border-[#EFECE6] flex flex-col shadow-2xs ${className}`}>
+      <div className="px-5 py-4 border-b border-[#EAE6DF]/70 flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-semibold text-[#17151A] tracking-tight">
+          <h4 className="text-sm font-bold text-[#111111] tracking-tight font-sans">
             {title}
           </h4>
           {subtitle && (
-            <p className="text-xs text-[#77727A] mt-0.5 font-normal">
+            <p className="text-xs text-[#5F6368] mt-0.5 font-normal">
               {subtitle}
             </p>
           )}

@@ -19,32 +19,32 @@ export default function ProtocolCard({
 
   return (
     <div
-      className={`enterprise-card bg-white p-5 flex flex-col justify-between transition-all duration-150 hover:shadow-sm ${
+      className={`enterprise-card bg-white p-5 rounded-[22px] flex flex-col justify-between transition-all duration-150 shadow-2xs ${
         isCritical
-          ? 'border-[#DD6E2D]/40'
+          ? 'border-rose-200'
           : isWarning
-          ? 'border-[#d8c3a1]'
-          : 'border-[#E5DFD8]'
+          ? 'border-[#FCE6CD]'
+          : 'border-[#EFECE6]'
       }`}
     >
       <div>
         {/* Card Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#E5DFD8]">
+        <div className="flex items-center justify-between pb-3.5 border-b border-[#EAE6DF]/60">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#0B192C] text-[#EDDEC2] flex items-center justify-center font-bold text-sm tracking-wider shadow-sm">
+            <div className="w-10 h-10 rounded-2xl bg-[#111111] text-white flex items-center justify-center font-bold text-sm shadow-xs">
               <Mail size={18} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-[#17151A] tracking-tight">
+                <h3 className="text-base font-bold text-[#111111] tracking-tight font-sans">
                   {protocol}
                 </h3>
-                <span className="text-xs text-[#77727A] font-mono">
-                  {connections} conns
+                <span className="text-xs text-[#80868B] font-mono">
+                  {connections} streams
                 </span>
               </div>
-              <p className="text-xs text-[#77727A]">
-                {description || `${protocol} Email Transport Stream`}
+              <p className="text-xs text-[#5F6368]">
+                {description || `${protocol} Transport Stream`}
               </p>
             </div>
           </div>
@@ -52,48 +52,48 @@ export default function ProtocolCard({
         </div>
 
         {/* Technical Attributes Grid */}
-        <div className="grid grid-cols-2 gap-3 py-4 text-xs">
-          <div className="p-2.5 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8]/60 space-y-1">
-            <div className="flex items-center gap-1.5 text-[#77727A]">
-              <Lock size={13} />
-              <span className="font-medium">TLS Version</span>
+        <div className="grid grid-cols-2 gap-2.5 py-3.5 text-xs">
+          <div className="p-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6DF] space-y-1">
+            <div className="flex items-center gap-1.5 text-[#5F6368]">
+              <Lock size={12} />
+              <span className="font-medium text-[11px]">TLS Version</span>
             </div>
-            <div className="font-semibold text-[#17151A] flex items-center gap-1.5 font-mono">
+            <div className="font-semibold text-[#111111] flex items-center gap-1.5 font-mono text-xs">
               <span>{tlsVersion}</span>
               {tlsVersion === 'TLS 1.0' && (
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#DD6E2D]/15 text-[#DD6E2D] font-sans font-bold">
-                  OBSOLETE
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 font-sans font-semibold">
+                  Obsolete
                 </span>
               )}
             </div>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8]/60 space-y-1">
-            <div className="flex items-center gap-1.5 text-[#77727A]">
-              <KeyRound size={13} />
-              <span className="font-medium">Cipher Suite</span>
+          <div className="p-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6DF] space-y-1">
+            <div className="flex items-center gap-1.5 text-[#5F6368]">
+              <KeyRound size={12} />
+              <span className="font-medium text-[11px]">Cipher Suite</span>
             </div>
-            <div className={`font-semibold font-mono truncate ${cipherSuite.includes('Weak') ? 'text-[#DD6E2D]' : 'text-[#17151A]'}`} title={cipherSuite}>
+            <div className={`font-semibold font-mono text-xs truncate ${cipherSuite.includes('Weak') ? 'text-rose-600' : 'text-[#111111]'}`} title={cipherSuite}>
               {cipherSuite}
             </div>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8]/60 space-y-1">
-            <div className="flex items-center gap-1.5 text-[#77727A]">
-              <ShieldCheck size={13} />
-              <span className="font-medium">STARTTLS</span>
+          <div className="p-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6DF] space-y-1">
+            <div className="flex items-center gap-1.5 text-[#5F6368]">
+              <ShieldCheck size={12} />
+              <span className="font-medium text-[11px]">STARTTLS</span>
             </div>
-            <div className={`font-semibold ${starttls === 'Misconfigured' ? 'text-[#DD6E2D]' : 'text-[#17151A]'}`}>
+            <div className={`font-semibold text-xs ${starttls === 'Misconfigured' ? 'text-[#B45309]' : 'text-[#111111]'}`}>
               {starttls}
             </div>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8]/60 space-y-1">
-            <div className="flex items-center gap-1.5 text-[#77727A]">
-              <FileBadge2 size={13} />
-              <span className="font-medium">Certificate</span>
+          <div className="p-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6DF] space-y-1">
+            <div className="flex items-center gap-1.5 text-[#5F6368]">
+              <FileBadge2 size={12} />
+              <span className="font-medium text-[11px]">Certificate</span>
             </div>
-            <div className={`font-semibold ${certificate.includes('Issue') ? 'text-[#DD6E2D]' : 'text-[#17151A]'}`}>
+            <div className={`font-semibold text-xs ${certificate.includes('Issue') ? 'text-rose-600' : 'text-[#111111]'}`}>
               {certificate}
             </div>
           </div>
@@ -101,14 +101,12 @@ export default function ProtocolCard({
       </div>
 
       {/* Card Footer / AI Risk */}
-      <div className="pt-3 border-t border-[#E5DFD8] flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="p-1 rounded bg-[#EDDEC2] text-[#0B192C]">
-            <Cpu size={14} />
-          </div>
-          <span className="text-xs text-[#77727A]">AI Risk Assessment:</span>
-          <span className={`text-xs font-bold ${
-            aiRisk === 'High' ? 'text-[#DD6E2D]' : aiRisk === 'Medium' ? 'text-[#844c12]' : 'text-[#166534]'
+      <div className="pt-3 border-t border-[#EAE6DF]/60 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 text-xs text-[#5F6368]">
+          <Cpu size={14} className="text-[#80868B]" />
+          <span>Risk:</span>
+          <span className={`font-semibold ${
+            aiRisk === 'High' ? 'text-rose-600' : aiRisk === 'Medium' ? 'text-[#B45309]' : 'text-[#15803D]'
           }`}>
             {aiRisk}
           </span>
@@ -117,10 +115,10 @@ export default function ProtocolCard({
         {onInspect && (
           <button
             onClick={() => onInspect(protocol)}
-            className="text-xs font-semibold text-[#0B192C] hover:text-[#DD6E2D] inline-flex items-center gap-1 transition-colors"
+            className="w-7 h-7 rounded-full bg-[#111111] text-white hover:bg-black flex items-center justify-center transition-colors cursor-pointer shadow-xs"
+            title="View Details"
           >
-            <span>Telemetry</span>
-            <ArrowUpRight size={13} />
+            <ArrowUpRight size={14} />
           </button>
         )}
       </div>

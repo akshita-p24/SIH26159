@@ -16,39 +16,39 @@ import Settings from './pages/Settings';
 const routeMetadata = {
   '/': {
     title: 'Security Overview',
-    subtitle: 'AI-Assisted Cryptographic Security Assessment'
+    subtitle: 'AI-Assisted Cryptographic Security Posture'
   },
   '/pcap': {
     title: 'PCAP Analysis',
-    subtitle: 'Analyze captured email traffic and identify cryptographic security weaknesses.'
+    subtitle: 'Traffic trace ingestion and handshake parsing'
   },
   '/protocols': {
     title: 'Protocol Analysis',
-    subtitle: 'Cryptographic posture evaluation for SMTP, IMAP, and POP3 email channels'
+    subtitle: 'SMTP, IMAP, and POP3 channel evaluation'
   },
   '/tls': {
     title: 'TLS Security Analysis',
-    subtitle: 'Version distribution, cipher classification, and opportunistic STARTTLS audit'
+    subtitle: 'Version distribution, ciphers, and STARTTLS audit'
   },
   '/findings': {
     title: 'Security Findings',
-    subtitle: 'Enterprise vulnerability matrix with packet evidence and remediation directives'
+    subtitle: 'Identified vulnerabilities and remediation directives'
   },
   '/ai-analysis': {
-    title: 'AI Security Analysis',
-    subtitle: 'Machine-learning models used to classify cryptographic security posture.'
+    title: 'AI Analysis',
+    subtitle: 'Machine-learning models for handshake evaluation'
   },
   '/explainability': {
     title: 'AI Explainability',
-    subtitle: 'Understand which security features influenced the model prediction.'
+    subtitle: 'SHAP feature attribution and scoring factors'
   },
   '/reports': {
-    title: 'Security Assessment Report',
-    subtitle: 'Auditor-ready compliance and cryptographic posture report preview'
+    title: 'Assessment Reports',
+    subtitle: 'Formal compliance and posture audit report'
   },
   '/settings': {
-    title: 'System Settings',
-    subtitle: 'Configure compliance baseline profiles and AI model sensitivities'
+    title: 'Settings',
+    subtitle: 'Compliance standards and model parameters'
   }
 };
 
@@ -58,43 +58,46 @@ export default function App() {
 
   const currentMeta = routeMetadata[location.pathname] || {
     title: 'SecureMailScope',
-    subtitle: 'AI-Assisted Cryptographic Security Posture Assessment'
+    subtitle: 'AI Cryptographic Posture Engine'
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#F5F3F1] font-sans antialiased text-[#17151A]">
-      {/* SaaS Sidebar Navigation */}
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-
-      {/* Main SaaS Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header */}
-        <Header
-          onMenuClick={() => setSidebarOpen(true)}
-          title={currentMeta.title}
-          subtitle={currentMeta.subtitle}
+    <div className="min-h-screen w-screen bg-[#EAE8FE] flex items-center justify-center p-0 sm:p-3 lg:p-5 font-sans antialiased text-[#111111] overflow-hidden">
+      {/* Reference Rounded App Shell */}
+      <div className="app-canvas w-full max-w-[1560px] h-screen sm:h-[96vh] flex overflow-hidden border border-white/60">
+        {/* Left Sidebar */}
+        <Sidebar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
         />
 
-        {/* Scrollable Viewport */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-          <div className="max-w-[1440px] mx-auto">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/pcap" element={<PCAPAnalysis />} />
-              <Route path="/protocols" element={<Protocols />} />
-              <Route path="/tls" element={<TLSAnalysis />} />
-              <Route path="/findings" element={<Findings />} />
-              <Route path="/ai-analysis" element={<AIAnalysis />} />
-              <Route path="/explainability" element={<Explainability />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="*" element={<Dashboard />} />
-            </Routes>
-          </div>
-        </main>
+        {/* Right Content Area */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#FAF9F7]">
+          {/* Top Header */}
+          <Header
+            onMenuClick={() => setSidebarOpen(true)}
+            title={currentMeta.title}
+            subtitle={currentMeta.subtitle}
+          />
+
+          {/* Scrollable Viewport */}
+          <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-5">
+            <div className="max-w-[1400px] mx-auto">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/pcap" element={<PCAPAnalysis />} />
+                <Route path="/protocols" element={<Protocols />} />
+                <Route path="/tls" element={<TLSAnalysis />} />
+                <Route path="/findings" element={<Findings />} />
+                <Route path="/ai-analysis" element={<AIAnalysis />} />
+                <Route path="/explainability" element={<Explainability />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="*" element={<Dashboard />} />
+              </Routes>
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );

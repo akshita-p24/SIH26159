@@ -1,81 +1,78 @@
 import React from 'react';
 import ChartCard from '../components/ChartCard';
-import SecurityBadge from '../components/SecurityBadge';
-import { ShieldCheck, AlertTriangle, Lock, ShieldAlert, Info, ArrowUpRight } from 'lucide-react';
+import { AlertTriangle, Info } from 'lucide-react';
 
 export default function TLSAnalysis() {
   return (
-    <div className="space-y-6">
-      {/* Top Observation Alert Banner */}
-      <div className="p-4 rounded-[10px] bg-[#EDDEC2] border border-[#d8c3a1] flex items-start gap-3">
-        <div className="p-2 rounded bg-[#32004B] text-[#EDDEC2] mt-0.5 flex-shrink-0">
+    <div className="space-y-5">
+      {/* Top Observation Alert Banner in soft peach */}
+      <div className="p-4 rounded-[22px] bg-[#FEF1E1] border border-[#FCE6CD] flex items-start gap-3.5 shadow-2xs">
+        <div className="p-2 rounded-xl bg-[#111111] text-white mt-0.5 flex-shrink-0">
           <Info size={18} />
         </div>
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#32004B] font-mono">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#111111] font-mono">
             Security Observation
           </h3>
-          <p className="text-xs text-[#242126] mt-0.5 leading-relaxed">
-            "Legacy TLS and weak cryptographic configurations were detected in a subset of analyzed connections."
+          <p className="text-xs text-[#5F6368] mt-0.5 leading-relaxed">
+            Legacy TLS 1.0 and 3DES cipher suites were detected in 3 connections on legacy ingestion port 995.
           </p>
         </div>
       </div>
 
       {/* Main Grid: Coverage Gauge + TLS Distribution + Cipher Classification */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Large TLS Coverage Gauge */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* TLS Coverage Gauge */}
         <div className="lg:col-span-4">
           <ChartCard
             title="TLS Coverage"
-            subtitle="Overall ratio of encrypted email transport sessions"
+            subtitle="Ratio of encrypted email transport sessions"
             className="h-full"
           >
-            <div className="flex flex-col items-center justify-center py-4">
-              {/* Large Radial Dial for 94% */}
-              <div className="relative w-44 h-44 flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center py-3">
+              <div className="relative w-36 h-36 flex items-center justify-center">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                   <circle
                     cx="50"
                     cy="50"
-                    r="40"
+                    r="38"
                     fill="transparent"
-                    stroke="#E5DFD8"
+                    stroke="#ECEAFD"
                     strokeWidth="8"
                   />
-                  {/* 94% of circumference 251.2 = 236.128, offset = 15.07 */}
                   <circle
                     cx="50"
                     cy="50"
-                    r="40"
+                    r="38"
                     fill="transparent"
-                    stroke="#32004B"
+                    stroke="#7C3AED"
                     strokeWidth="8"
-                    strokeDasharray="251.2"
-                    strokeDashoffset={251.2 * (1 - 0.94)}
+                    strokeDasharray="238.76"
+                    strokeDashoffset={238.76 * (1 - 0.94)}
                     strokeLinecap="round"
                     className="transition-all duration-1000 ease-out"
                   />
                 </svg>
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-4xl font-extrabold text-[#17151A] tracking-tight font-sans">
+                  <span className="text-3xl font-extrabold text-[#111111] tracking-tight font-sans">
                     94%
                   </span>
-                  <span className="text-[11px] font-semibold text-[#77727A] max-w-[110px] leading-tight mt-1">
-                    Encrypted Traffic Coverage
+                  <span className="text-[10px] font-semibold text-[#80868B] max-w-[90px] leading-tight mt-0.5">
+                    Encrypted Traffic
                   </span>
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center gap-2">
+              <div className="mt-3 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-xs text-[#242126] font-medium">
+                <span className="text-xs text-[#5F6368] font-medium">
                   43 of 46 handshakes authenticated
                 </span>
               </div>
 
-              <div className="w-full mt-4 pt-3 border-t border-[#E5DFD8] text-center text-[11px] text-[#77727A]">
-                Target Threshold: <strong className="text-[#17151A]">≥ 90.0%</strong> (Compliant)
+              <div className="w-full mt-3 pt-3 border-t border-[#EAE6DF] text-center text-[11px] text-[#80868B]">
+                Target: <strong className="text-[#111111]">≥ 90%</strong> (Compliant)
               </div>
             </div>
           </ChartCard>
@@ -85,59 +82,59 @@ export default function TLSAnalysis() {
         <div className="lg:col-span-4">
           <ChartCard
             title="TLS Version Distribution"
-            subtitle="Breakdown of negotiated TLS protocols in stream"
+            subtitle="Negotiated protocols across captured sessions"
             className="h-full"
           >
-            <div className="space-y-4 py-2">
+            <div className="space-y-3.5 py-1">
               {/* TLS 1.3 */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span className="font-semibold text-[#17151A] flex items-center gap-1.5 font-mono">
-                    <span className="w-2 h-2 rounded-full bg-[#32004B]" />
+                  <span className="font-semibold text-[#111111] flex items-center gap-1.5 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-[#7C3AED]" />
                     TLS 1.3
                   </span>
-                  <span className="font-bold text-[#17151A] font-mono">65% (30 sessions)</span>
+                  <span className="font-bold text-[#111111] font-mono">65% (30 sessions)</span>
                 </div>
-                <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#E5DFD8]/60">
-                  <div className="bg-[#32004B] h-3 rounded-full" style={{ width: '65%' }} />
+                <div className="w-full bg-[#ECEAFD] rounded-full h-2.5 overflow-hidden">
+                  <div className="bg-[#7C3AED] h-2.5 rounded-full" style={{ width: '65%' }} />
                 </div>
-                <span className="text-[10px] text-[#166534] font-medium block">
+                <span className="text-[10px] text-[#15803D] font-medium block">
                   Recommended • Perfect Forward Secrecy enforced
                 </span>
               </div>
 
               {/* TLS 1.2 */}
-              <div className="space-y-1.5 pt-1">
+              <div className="space-y-1 pt-1">
                 <div className="flex justify-between text-xs">
-                  <span className="font-semibold text-[#17151A] flex items-center gap-1.5 font-mono">
-                    <span className="w-2 h-2 rounded-full bg-[#77727A]" />
+                  <span className="font-semibold text-[#111111] flex items-center gap-1.5 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-[#94A3B8]" />
                     TLS 1.2
                   </span>
-                  <span className="font-bold text-[#17151A] font-mono">29% (13 sessions)</span>
+                  <span className="font-bold text-[#111111] font-mono">29% (13 sessions)</span>
                 </div>
-                <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#E5DFD8]/60">
-                  <div className="bg-[#77727A] h-3 rounded-full" style={{ width: '29%' }} />
+                <div className="w-full bg-[#FAF9F7] rounded-full h-2.5 overflow-hidden border border-[#EAE6DF]">
+                  <div className="bg-[#94A3B8] h-2.5 rounded-full" style={{ width: '29%' }} />
                 </div>
-                <span className="text-[10px] text-[#77727A] font-medium block">
-                  Acceptable • Subject to cipher suite restrictions
+                <span className="text-[10px] text-[#80868B] font-medium block">
+                  Acceptable • Standard configuration
                 </span>
               </div>
 
               {/* TLS 1.0 */}
-              <div className="space-y-1.5 pt-1">
+              <div className="space-y-1 pt-1">
                 <div className="flex justify-between text-xs">
-                  <span className="font-semibold text-[#DD6E2D] flex items-center gap-1.5 font-mono">
-                    <span className="w-2 h-2 rounded-full bg-[#DD6E2D]" />
+                  <span className="font-semibold text-rose-600 flex items-center gap-1.5 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-rose-500" />
                     TLS 1.0 (Obsolete)
                   </span>
-                  <span className="font-bold text-[#DD6E2D] font-mono">6% (3 sessions)</span>
+                  <span className="font-bold text-rose-600 font-mono">6% (3 sessions)</span>
                 </div>
-                <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#DD6E2D]/30">
-                  <div className="bg-[#DD6E2D] h-3 rounded-full" style={{ width: '6%' }} />
+                <div className="w-full bg-rose-50 rounded-full h-2.5 overflow-hidden">
+                  <div className="bg-rose-500 h-2.5 rounded-full" style={{ width: '6%' }} />
                 </div>
-                <div className="flex items-center gap-1 text-[10px] text-[#DD6E2D] font-bold">
+                <div className="flex items-center gap-1 text-[10px] text-rose-600 font-semibold">
                   <AlertTriangle size={11} />
-                  <span>DEPRECATED • Violates PCI-DSS 4.0 / RFC 8996</span>
+                  <span>Deprecated • RFC 8996 Violation</span>
                 </div>
               </div>
             </div>
@@ -148,58 +145,58 @@ export default function TLSAnalysis() {
         <div className="lg:col-span-4">
           <ChartCard
             title="Cipher Suite Classification"
-            subtitle="NIST SP 800-52r2 cryptographic strength ratings"
+            subtitle="NIST SP 800-52r2 cryptographic strength"
             className="h-full"
           >
-            <div className="space-y-4 py-2">
+            <div className="space-y-3.5 py-1">
               {/* Strong */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span className="font-semibold text-[#17151A] flex items-center gap-1.5 font-mono">
-                    <span className="w-2 h-2 rounded-full bg-[#166534]" />
+                  <span className="font-semibold text-[#111111] flex items-center gap-1.5 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-[#15803D]" />
                     Strong (AEAD)
                   </span>
-                  <span className="font-bold text-[#166534] font-mono">67.4% (31 suites)</span>
+                  <span className="font-bold text-[#15803D] font-mono">67.4% (31 suites)</span>
                 </div>
-                <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#E5DFD8]/60">
-                  <div className="bg-[#166534] h-3 rounded-full" style={{ width: '67.4%' }} />
+                <div className="w-full bg-[#E3F6EC] rounded-full h-2.5 overflow-hidden">
+                  <div className="bg-[#15803D] h-2.5 rounded-full" style={{ width: '67.4%' }} />
                 </div>
-                <span className="text-[10px] text-[#77727A] block font-mono">
-                  AES-256-GCM-SHA384, CHACHA20-POLY1305
+                <span className="text-[10px] text-[#80868B] block font-mono">
+                  AES-256-GCM, CHACHA20-POLY1305
                 </span>
               </div>
 
               {/* Acceptable */}
-              <div className="space-y-1.5 pt-1">
+              <div className="space-y-1 pt-1">
                 <div className="flex justify-between text-xs">
-                  <span className="font-semibold text-[#17151A] flex items-center gap-1.5 font-mono">
-                    <span className="w-2 h-2 rounded-full bg-[#844c12]" />
+                  <span className="font-semibold text-[#111111] flex items-center gap-1.5 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-[#B45309]" />
                     Acceptable
                   </span>
-                  <span className="font-bold text-[#844c12] font-mono">26.1% (12 suites)</span>
+                  <span className="font-bold text-[#B45309] font-mono">26.1% (12 suites)</span>
                 </div>
-                <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#E5DFD8]/60">
-                  <div className="bg-[#844c12] h-3 rounded-full" style={{ width: '26.1%' }} />
+                <div className="w-full bg-[#FEF1E1] rounded-full h-2.5 overflow-hidden">
+                  <div className="bg-[#B45309] h-2.5 rounded-full" style={{ width: '26.1%' }} />
                 </div>
-                <span className="text-[10px] text-[#77727A] block font-mono">
-                  AES-128-GCM-SHA256, ECDHE-RSA-AES128-SHA256
+                <span className="text-[10px] text-[#80868B] block font-mono">
+                  AES-128-GCM-SHA256
                 </span>
               </div>
 
               {/* Weak */}
-              <div className="space-y-1.5 pt-1">
+              <div className="space-y-1 pt-1">
                 <div className="flex justify-between text-xs">
-                  <span className="font-semibold text-[#DD6E2D] flex items-center gap-1.5 font-mono">
-                    <span className="w-2 h-2 rounded-full bg-[#DD6E2D]" />
+                  <span className="font-semibold text-rose-600 flex items-center gap-1.5 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-rose-500" />
                     Weak (Insecure)
                   </span>
-                  <span className="font-bold text-[#DD6E2D] font-mono">6.5% (3 suites)</span>
+                  <span className="font-bold text-rose-600 font-mono">6.5% (3 suites)</span>
                 </div>
-                <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#DD6E2D]/30">
-                  <div className="bg-[#DD6E2D] h-3 rounded-full" style={{ width: '6.5%' }} />
+                <div className="w-full bg-rose-50 rounded-full h-2.5 overflow-hidden">
+                  <div className="bg-rose-500 h-2.5 rounded-full" style={{ width: '6.5%' }} />
                 </div>
-                <span className="text-[10px] text-[#DD6E2D] block font-mono font-semibold">
-                  3DES-EDE-CBC-SHA (SWEET32), RC4-MD5
+                <span className="text-[10px] text-rose-600 block font-mono font-semibold">
+                  3DES-EDE-CBC (SWEET32)
                 </span>
               </div>
             </div>
@@ -209,52 +206,52 @@ export default function TLSAnalysis() {
 
       {/* STARTTLS Usage Comparison Section */}
       <ChartCard
-        title="STARTTLS Usage & Opportunistic Encryption Audit"
-        subtitle="Ratio of successfully upgraded cleartext handshakes to TLS encrypted tunnels"
+        title="Opportunistic STARTTLS Audit"
+        subtitle="Upgraded cleartext handshakes vs plain text sessions"
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-2">
-          {/* SMTP STARTTLS */}
-          <div className="p-4 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8] space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-1">
+          {/* SMTP STARTTLS (Soft Mint) */}
+          <div className="p-4 rounded-[20px] bg-[#E3F6EC] border border-[#C8EFE0] space-y-2">
             <div className="flex justify-between items-baseline">
-              <span className="text-xs font-bold text-[#17151A] font-mono uppercase">SMTP (Port 587)</span>
-              <span className="text-base font-extrabold text-[#166534] font-mono">95%</span>
+              <span className="text-xs font-bold text-[#111111] font-mono uppercase">SMTP (Port 587)</span>
+              <span className="text-base font-extrabold text-[#15803D] font-mono">95%</span>
             </div>
-            <div className="w-full bg-white rounded-full h-2.5 overflow-hidden border border-[#E5DFD8]">
-              <div className="bg-[#166534] h-2.5 rounded-full" style={{ width: '95%' }} />
+            <div className="w-full bg-white/80 rounded-full h-2 overflow-hidden">
+              <div className="bg-[#15803D] h-2 rounded-full" style={{ width: '95%' }} />
             </div>
-            <div className="text-[11px] text-[#77727A] flex justify-between">
-              <span>20 of 21 sessions upgraded</span>
-              <span className="text-[#166534] font-semibold">Optimal</span>
+            <div className="text-[11px] text-[#3D7A5C] flex justify-between">
+              <span>20 of 21 upgraded</span>
+              <span className="font-bold">Optimal</span>
             </div>
           </div>
 
-          {/* IMAP STARTTLS */}
-          <div className="p-4 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8] space-y-2">
+          {/* IMAP STARTTLS (Soft Lavender) */}
+          <div className="p-4 rounded-[20px] bg-[#ECEAFD] border border-[#DDD6FE] space-y-2">
             <div className="flex justify-between items-baseline">
-              <span className="text-xs font-bold text-[#17151A] font-mono uppercase">IMAP (Port 143/993)</span>
-              <span className="text-base font-extrabold text-[#32004B] font-mono">91%</span>
+              <span className="text-xs font-bold text-[#111111] font-mono uppercase">IMAP (Port 993)</span>
+              <span className="text-base font-extrabold text-[#7C3AED] font-mono">91%</span>
             </div>
-            <div className="w-full bg-white rounded-full h-2.5 overflow-hidden border border-[#E5DFD8]">
-              <div className="bg-[#32004B] h-2.5 rounded-full" style={{ width: '91%' }} />
+            <div className="w-full bg-white/80 rounded-full h-2 overflow-hidden">
+              <div className="bg-[#7C3AED] h-2 rounded-full" style={{ width: '91%' }} />
             </div>
-            <div className="text-[11px] text-[#77727A] flex justify-between">
-              <span>15 of 17 sessions upgraded</span>
-              <span className="text-[#32004B] font-semibold">Standard</span>
+            <div className="text-[11px] text-[#6D5BA8] flex justify-between">
+              <span>15 of 17 upgraded</span>
+              <span className="font-bold">Standard</span>
             </div>
           </div>
 
-          {/* POP3 STARTTLS */}
-          <div className="p-4 rounded-lg bg-[#EDDEC2]/40 border border-[#d8c3a1] space-y-2">
+          {/* POP3 STARTTLS (Soft Peach) */}
+          <div className="p-4 rounded-[20px] bg-[#FEF1E1] border border-[#FCE6CD] space-y-2">
             <div className="flex justify-between items-baseline">
-              <span className="text-xs font-bold text-[#17151A] font-mono uppercase">POP3 (Port 110/995)</span>
-              <span className="text-base font-extrabold text-[#DD6E2D] font-mono">72%</span>
+              <span className="text-xs font-bold text-[#111111] font-mono uppercase">POP3 (Port 995)</span>
+              <span className="text-base font-extrabold text-[#B45309] font-mono">72%</span>
             </div>
-            <div className="w-full bg-white rounded-full h-2.5 overflow-hidden border border-[#E5DFD8]">
-              <div className="bg-[#DD6E2D] h-2.5 rounded-full" style={{ width: '72%' }} />
+            <div className="w-full bg-white/80 rounded-full h-2 overflow-hidden">
+              <div className="bg-[#B45309] h-2 rounded-full" style={{ width: '72%' }} />
             </div>
-            <div className="text-[11px] text-[#77727A] flex justify-between">
-              <span>6 of 8 sessions upgraded</span>
-              <span className="text-[#DD6E2D] font-semibold">Deficient (2 cleartext)</span>
+            <div className="text-[11px] text-[#8C6D52] flex justify-between">
+              <span>6 of 8 upgraded</span>
+              <span className="font-bold text-rose-700">2 Cleartext</span>
             </div>
           </div>
         </div>

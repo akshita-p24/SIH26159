@@ -8,24 +8,25 @@ export default {
     extend: {
       colors: {
         brand: {
-          navy: "#0B192C",
-          blue: "#1D4ED8",
-          purple: "#0B192C", /* Aliased to Navy Blue for backward compatibility */
-          orange: "#DD6E2D",
-          cream: "#EDDEC2",
-          black: "#17151A",
-          dark: "#242126",
-          muted: "#77727A",
-          light: "#F5F3F1",
-          border: "#E5DFD8",
+          canvas: "#FAF9F7",
+          lavender: "#EAE8FE",
+          purple: "#7C3AED",
+          peach: "#FEF1E1",
+          periwinkle: "#DDEBFF",
+          navy: "#18181B",
+          black: "#111111",
+          dark: "#18181B",
+          muted: "#6B7280",
+          border: "#EAE6DF",
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
       },
       borderRadius: {
-        'card': '10px',
+        'card': '20px',
+        'shell': '28px',
       }
     },
   },
