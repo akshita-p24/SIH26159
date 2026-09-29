@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-navy: #0B192C;
+  --color-blue: #1D4ED8;
+  --color-purple: #0B192C;
+  --color-orange: #DD6E2D;
+  --color-cream: #EDDEC2;
+  --color-near-black: #17151A;
+  --color-dark-gray: #242126;
+  --color-muted-gray: #77727A;
+  --color-light-gray: #F5F3F1;
+  --color-border: #E5DFD8;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #F5F3F1;
+  color: #17151A;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5F3F1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E5DFD8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #77727A;
+}
+
+/* Card utilities */
+.enterprise-card {
+  background: #FFFFFF;
+  border: 1px solid #E5DFD8;
+  border-radius: 10px;
+  transition: all 0.2s ease-in-out;
+}
+
+.enterprise-card:hover {
+  border-color: #D3CBC1;
+}

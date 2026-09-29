@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureMailScope | AI-Assisted Cryptographic Posture Assessment</title>
+  <meta name="description" content="AI-Assisted Cryptographic Security Posture Assessment for Secure Email Communications" />
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              purple: "#32004B",
+              orange: "#DD6E2D",
+              cream: "#EDDEC2",
+              black: "#17151A",
+              dark: "#242126",
+              muted: "#77727A",
+              light: "#F5F3F1",
+              border: "#E5DFD8",
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- React 18 & Babel for standalone instant execution -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #F5F3F1;
+      color: #17151A;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F5F3F1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #E5DFD8;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #77727A;
+    }
+
+    .enterprise-card {
+      background: #FFFFFF;
+      border: 1px solid #E5DFD8;
+      border-radius: 10px;
+      transition: all 0.15s ease-in-out;
+    }
+    .enterprise-card:hover {
+      border-color: #D3CBC1;
+    }
+  </style>
+</head>
+<body class="bg-[#F5F3F1] text-[#17151A] overflow-hidden select-none">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Helper component for Lucide Icons
+    function Icon({ name, size = 16, className = "", strokeWidth = 2 }) {
+      useEffect(() => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      }, [name]);
+
+      return (
+        <i
+          data-lucide={name}
+          className={`inline-block ${className}`}
+          style={{ width: `${size}px`, height: `${size}px`, strokeWidth: strokeWidth }}
+        />
+      );
+    }
+
+    // Security Badge Component
+    function SecurityBadge({ level, showIcon = true, size = 'sm' }) {
+      const normalized = String(level).toUpperCase();
+
+      const configs = {
+        HIGH: { bg: 'bg-[#DD6E2D]/10', text: 'text-[#DD6E2D]', border: 'border-[#DD6E2D]/30', icon: 'shield-alert', label: 'HIGH' },
+        CRITICAL: { bg: 'bg-[#b91c1c]/10', text: 'text-[#b91c1c]', border: 'border-[#b91c1c]/30', icon: 'shield-alert', label: 'CRITICAL' },
+        MEDIUM: { bg: 'bg-[#EDDEC2]', text: 'text-[#844c12]', border: 'border-[#d8c3a1]', icon: 'alert-triangle', label: 'MEDIUM' },
+        'MEDIUM RISK': { bg: 'bg-[#EDDEC2]', text: 'text-[#844c12]', border: 'border-[#d8c3a1]', icon: 'alert-triangle', label: 'MEDIUM RISK' },
+        LOW: { bg: 'bg-[#F5F3F1]', text: 'text-[#77727A]', border: 'border-[#E5DFD8]', icon: 'info', label: 'LOW' },
+        'LOW RISK': { bg: 'bg-[#e2f3e8]', text: 'text-[#1e6f40]', border: 'border-[#c1e6cd]', icon: 'shield-check', label: 'LOW RISK' },
+        WARNING: { bg: 'bg-[#EDDEC2]', text: 'text-[#844c12]', border: 'border-[#d8c3a1]', icon: 'circle-alert', label: 'WARNING' },
+        SECURE: { bg: 'bg-[#e7f7ed]', text: 'text-[#166534]', border: 'border-[#bbf0cb]', icon: 'shield-check', label: 'SECURE' },
+        MODERN: { bg: 'bg-[#e7f7ed]', text: 'text-[#166534]', border: 'border-[#bbf0cb]', icon: 'shield-check', label: 'MODERN' },
+        WEAK: { bg: 'bg-[#DD6E2D]/10', text: 'text-[#DD6E2D]', border: 'border-[#DD6E2D]/30', icon: 'shield-alert', label: 'WEAK' },
+      };
+
+      const c = configs[normalized] || { bg: 'bg-[#F5F3F1]', text: 'text-[#242126]', border: 'border-[#E5DFD8]', icon: 'info', label: normalized };
+      const sizeClasses = size === 'xs' ? 'text-[10px] px-1.5 py-0.5 gap-1' : 'text-xs px-2 py-0.5 gap-1.5';
+
+      return (
+        <span className={`inline-flex items-center rounded-full border font-semibold ${c.bg} ${c.text} ${c.border} ${sizeClasses}`}>
+          {showIcon && <Icon name={c.icon} size={size === 'xs' ? 11 : 13} />}
+          <span>{c.label}</span>
+        </span>
+      );
+    }
+
+    // Button Component
+    function Button({ children, variant = 'primary', size = 'md', icon, onClick, disabled = false, className = '' }) {
+      const sizeStyles = {
+        sm: 'text-xs px-2.5 py-1.5 gap-1.5',
+        md: 'text-sm px-3.5 py-2 gap-2',
+        lg: 'text-base px-4 py-2.5 gap-2.5'
+      };
+
+      const variantStyles = {
+        primary: 'bg-[#DD6E2D] hover:bg-[#c55d22] active:bg-[#b0521c] text-white shadow-sm',
+        brand: 'bg-[#32004B] hover:bg-[#250038] text-white shadow-sm',
+        secondary: 'bg-[#EDDEC2] hover:bg-[#e4d2b2] text-[#32004B] font-semibold',
+        outline: 'border border-[#E5DFD8] bg-white hover:bg-[#F5F3F1] text-[#242126]',
+        ghost: 'text-[#77727A] hover:text-[#17151A] hover:bg-[#F5F3F1]'
+      };
+
+      return (
+        <button
+          disabled={disabled}
+          onClick={onClick}
+          className={`inline-flex items-center justify-center font-medium transition-all duration-150 rounded-[8px] focus:outline-none ${sizeStyles[size]} ${variantStyles[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
+        >
+          {icon && <Icon name={icon} size={size === 'sm' ? 14 : 16} />}
+          <span>{children}</span>
+        </button>
+      );
+    }
+
+    // StatCard Component
+    function StatCard({ title, value, status, subtitle, icon, badgeText, badgeType = 'default', highlight = false }) {
+      return (
+        <div className={`enterprise-card p-4 relative overflow-hidden ${highlight ? 'border-l-4 border-l-[#DD6E2D]' : ''}`}>
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-[#77727A] tracking-wider uppercase">{title}</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-2xl font-bold tracking-tight text-[#17151A] font-sans">{value}</h3>
+                {status && <span className="text-xs font-medium text-[#77727A]">{status}</span>}
+              </div>
+            </div>
+            {icon && (
+              <div className="p-2 rounded-md bg-[#F5F3F1] text-[#32004B] border border-[#E5DFD8]">
+                <Icon name={icon} size={18} />
+              </div>
+            )}
+          </div>
+          {(subtitle || badgeText) && (
+            <div className="mt-2.5 pt-2.5 border-t border-[#E5DFD8]/60 flex items-center justify-between text-xs">
+              {subtitle && <span className="text-[#77727A] truncate">{subtitle}</span>}
+              {badgeText && (
+                <span className={`px-1.5 py-0.5 rounded text-[11px] font-medium ${badgeType === 'warning' ? 'bg-[#EDDEC2] text-[#844c12]' : badgeType === 'danger' ? 'bg-[#DD6E2D]/15 text-[#DD6E2D]' : 'bg-[#F5F3F1] text-[#77727A]'}`}>
+                  {badgeText}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ChartCard Component
+    function ChartCard({ title, subtitle, action, children, className = '' }) {
+      return (
+        <div className={`enterprise-card flex flex-col ${className}`}>
+          <div className="px-5 py-4 border-b border-[#E5DFD8] flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-semibold text-[#17151A] tracking-tight">{title}</h4>
+              {subtitle && <p className="text-xs text-[#77727A] mt-0.5">{subtitle}</p>}
+            </div>
+            {action && <div>{action}</div>}
+          </div>
+          <div className="flex-1 p-5">{children}</div>
+        </div>
+      );
+    }
+
+    // ProtocolCard Component
+    function ProtocolCard({ protocol, status, connections, tlsVersion, cipherSuite, starttls, certificate, aiRisk, onInspect }) {
+      const isCritical = status === 'CRITICAL';
+      const isWarning = status === 'WARNING';
+
+      return (
+        <div className={`enterprise-card p-5 flex flex-col justify-between ${isCritical ? 'border-[#DD6E2D]/40' : isWarning ? 'border-[#d8c3a1]' : 'border-[#E5DFD8]'}`}>
+          <div>
+            <div className="flex items-center justify-between pb-4 border-b border-[#E5DFD8]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[#32004B] text-[#EDDEC2] flex items-center justify-center font-bold text-sm tracking-wider shadow-sm">
+                  <Icon name="mail" size={18} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-[#17151A]">{protocol}</h3>
+                    <span className="text-xs text-[#77727A] font-mono">{connections} conns</span>
+                  </div>
+                  <p className="text-xs text-[#77727A]">{protocol} Mail Telemetry</p>
+                </div>
+              </div>
+              <SecurityBadge level={status} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5 py-4 text-xs">
+              <div className="p-2.5 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8]/60 space-y-1">
+                <div className="flex items-center gap-1.5 text-[#77727A]">
+                  <Icon name="lock" size={13} />
+                  <span>TLS Version</span>
+                </div>
+                <div className="font-semibold text-[#17151A] font-mono flex items-center gap-1">
+                  <span>{tlsVersion}</span>
+                  {tlsVersion === 'TLS 1.0' && <span className="text-[9px] px-1 bg-[#DD6E2D]/15 text-[#DD6E2D] font-bold rounded">OBSOLETE</span>}
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8]/60 space-y-1">
+                <div className="flex items-center gap-1.5 text-[#77727A]">
+                  <Icon name="key" size={13} />
+                  <span>Cipher Suite</span>
+                </div>
+                <div className={`font-semibold font-mono truncate ${cipherSuite.includes('Weak') ? 'text-[#DD6E2D]' : 'text-[#17151A]'}`} title={cipherSuite}>
+                  {cipherSuite}
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8]/60 space-y-1">
+                <div className="flex items-center gap-1.5 text-[#77727A]">
+                  <Icon name="shield-check" size={13} />
+                  <span>STARTTLS</span>
+                </div>
+                <div className={`font-semibold ${starttls === 'Misconfigured' ? 'text-[#DD6E2D]' : 'text-[#17151A]'}`}>
+                  {starttls}
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8]/60 space-y-1">
+                <div className="flex items-center gap-1.5 text-[#77727A]">
+                  <Icon name="file-badge" size={13} />
+                  <span>Certificate</span>
+                </div>
+                <div className={`font-semibold ${certificate.includes('Issue') ? 'text-[#DD6E2D]' : 'text-[#17151A]'}`}>
+                  {certificate}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-[#E5DFD8] flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-[#77727A]">AI Risk:</span>
+              <span className={`font-bold ${aiRisk === 'High' ? 'text-[#DD6E2D]' : aiRisk === 'Medium' ? 'text-[#844c12]' : 'text-[#166534]'}`}>
+                {aiRisk}
+              </span>
+            </div>
+            {onInspect && (
+              <button onClick={onInspect} className="font-semibold text-[#32004B] hover:text-[#DD6E2D] flex items-center gap-1">
+                <span>Inspect</span>
+                <Icon name="arrow-up-right" size={13} />
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Shared Findings Data
+    const FINDINGS_DATA = [
+      { id: 'FND-001', severity: 'HIGH', finding: 'Weak cipher suite', protocol: 'SMTP', evidence: 'TLS_RSA_WITH_3DES_EDE_CBC_SHA', status: 'Open', impact: '64-bit 3DES block cipher prone to SWEET32 collisions.', remediation: 'Deprecate 3DES in postfix/sendmail configuration.' },
+      { id: 'FND-002', severity: 'MEDIUM', finding: 'TLS 1.0 detected', protocol: 'IMAP', evidence: 'TLSv1.0 handshake', status: 'Active', impact: 'RFC 8996 deprecated protocol vulnerable to downgrade attacks.', remediation: 'Set ssl_min_protocol = TLSv1.2 in mail daemon config.' },
+      { id: 'FND-003', severity: 'MEDIUM', finding: 'Certificate issue', protocol: 'POP3', evidence: 'Certificate validation failure', status: 'Investigating', impact: 'POP3 certificate fails SAN match validation against host.', remediation: 'Renew certificate with complete SAN chain.' },
+      { id: 'FND-004', severity: 'LOW', finding: 'STARTTLS misconfiguration', protocol: 'SMTP', evidence: 'STARTTLS negotiation inconsistency', status: 'In Review', impact: 'Opportunistic STARTTLS without strict MTA-STS policy enforcement.', remediation: 'Publish MTA-STS and DANE TLSA records.' },
+      { id: 'FND-005', severity: 'LOW', finding: 'Weak key exchange', protocol: 'IMAP', evidence: 'Legacy DH parameters', status: 'Monitoring', impact: '1024-bit Diffie-Hellman parameter group size detected.', remediation: 'Upgrade DH parameters to 2048-bit or deploy ECDHE X25519.' }
+    ];
+
+    // Finding Table Component
+    function FindingTable({ showFilters = true, initialLimit = null }) {
+      const [search, setSearch] = useState('');
+      const [filter, setFilter] = useState('ALL');
+      const [selected, setSelected] = useState(null);
+
+      const filtered = FINDINGS_DATA.filter(item => {
+        const matchSearch = item.finding.toLowerCase().includes(search.toLowerCase()) || item.evidence.toLowerCase().includes(search.toLowerCase()) || item.protocol.toLowerCase().includes(search.toLowerCase());
+        const matchFilter = filter === 'ALL' || item.severity === filter;
+        return matchSearch && matchFilter;
+      });
+
+      const items = initialLimit ? filtered.slice(0, initialLimit) : filtered;
+
+      return (
+        <div className="w-full">
+          {showFilters && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
+              <div className="relative w-full sm:w-72">
+                <Icon name="search" size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#77727A]" />
+                <input
+                  type="text"
+                  placeholder="Filter findings..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-[#E5DFD8] rounded-[8px] focus:outline-none focus:border-[#DD6E2D]"
+                />
+              </div>
+
+              <div className="flex items-center gap-1 self-start sm:self-auto">
+                {['ALL', 'HIGH', 'MEDIUM', 'LOW'].map(lvl => (
+                  <button
+                    key={lvl}
+                    onClick={() => setFilter(lvl)}
+                    className={`text-xs px-2.5 py-1 rounded-[6px] font-medium ${filter === lvl ? 'bg-[#32004B] text-white' : 'bg-white border border-[#E5DFD8] text-[#77727A]'}`}
+                  >
+                    {lvl}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="enterprise-card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-[#F5F3F1] border-b border-[#E5DFD8] text-[#77727A] uppercase font-semibold">
+                    <th className="py-3 px-4 w-28">Severity</th>
+                    <th className="py-3 px-4">Finding</th>
+                    <th className="py-3 px-4 w-24">Protocol</th>
+                    <th className="py-3 px-4">Evidence</th>
+                    <th className="py-3 px-4 w-28">Status</th>
+                    <th className="py-3 px-4 text-right w-16">Detail</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E5DFD8]">
+                  {items.map(item => (
+                    <tr key={item.id} onClick={() => setSelected(item)} className="hover:bg-[#F5F3F1]/70 cursor-pointer transition-colors group">
+                      <td className="py-3 px-4"><SecurityBadge level={item.severity} /></td>
+                      <td className="py-3 px-4 font-semibold text-[#17151A]">{item.finding}</td>
+                      <td className="py-3 px-4 font-mono font-medium">{item.protocol}</td>
+                      <td className="py-3 px-4 font-mono text-[#32004B] text-[11px] truncate max-w-[240px]">{item.evidence}</td>
+                      <td className="py-3 px-4">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#F5F3F1] text-[#242126] border border-[#E5DFD8]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#DD6E2D]" />
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right"><Icon name="chevron-right" size={15} className="text-[#77727A] group-hover:text-[#DD6E2D]" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {selected && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+              <div className="bg-white rounded-[12px] border border-[#E5DFD8] shadow-xl w-full max-w-xl overflow-hidden">
+                <div className="px-6 py-4 bg-[#32004B] text-white flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon name="shield-alert" size={18} className="text-[#DD6E2D]" />
+                    <h3 className="text-sm font-semibold">{selected.finding} ({selected.id})</h3>
+                  </div>
+                  <button onClick={() => setSelected(null)} className="text-[#EDDEC2] hover:text-white"><Icon name="x" size={18} /></button>
+                </div>
+                <div className="p-6 space-y-3 text-xs">
+                  <div className="flex gap-2 items-center">
+                    <SecurityBadge level={selected.severity} />
+                    <span className="font-mono text-[#77727A]">Protocol: {selected.protocol}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-[#77727A] block">Captured Packet Cryptographic Evidence:</span>
+                    <div className="p-2.5 bg-[#17151A] text-[#EDDEC2] font-mono text-xs rounded mt-1">{selected.evidence}</div>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-[#77727A] block">Impact:</span>
+                    <p className="text-[#242126] bg-[#F5F3F1] p-2.5 rounded mt-1">{selected.impact}</p>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-[#77727A] block">Remediation Action:</span>
+                    <p className="text-[#32004B] bg-[#EDDEC2]/40 border border-[#EDDEC2] p-2.5 rounded mt-1 font-medium">{selected.remediation}</p>
+                  </div>
+                </div>
+                <div className="px-6 py-3 bg-[#F5F3F1] border-t border-[#E5DFD8] flex justify-end">
+                  <Button variant="brand" size="sm" onClick={() => setSelected(null)}>Close</Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- SCREEN 1: DASHBOARD ---
+    function ScreenDashboard({ onNavigate }) {
+      return (
+        <div className="space-y-6">
+          <div className="bg-[#EDDEC2] border border-[#d8c3a1] rounded-[10px] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-[#32004B] text-[#EDDEC2] mt-0.5"><Icon name="activity" size={18} /></div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-[#32004B]">Active Assessment: secure_email.pcap</h2>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#DD6E2D] text-white font-mono font-semibold">MEDIUM RISK</span>
+                </div>
+                <p className="text-xs text-[#242126] mt-0.5">1,284 packets inspected across 46 TLS handshakes. Deprecated 3DES and TLS 1.0 negotiations flagged.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => onNavigate('explainability')}>Explain Score (SHAP)</Button>
+              <Button variant="primary" size="sm" icon="arrow-right" onClick={() => onNavigate('pcap')}>New Capture</Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <StatCard title="Overall Security Score" value="72 / 100" status="MEDIUM RISK" subtitle="Cryptographic ML" icon="shield-check" badgeText="Medium Risk" badgeType="warning" highlight={true} />
+            <StatCard title="TLS Coverage" value="94%" status="Encrypted" subtitle="43 of 46 Sessions" icon="lock" badgeText="Target > 90%" />
+            <StatCard title="Weak Ciphers" value="3" status="Flagged" subtitle="3DES & CBC-mode" icon="key" badgeText="Action Req." badgeType="danger" />
+            <StatCard title="Certificate Issues" value="1" status="Warning" subtitle="POP3 Validation Mismatch" icon="file-badge" badgeText="Audit Req." badgeType="warning" />
+            <StatCard title="Network Connections" value="46" status="Inspected" subtitle="SMTP:21 | IMAP:17 | POP3:8" icon="network" badgeText="Stream Ready" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div className="lg:col-span-4">
+              <ChartCard title="Security Score Visualizer" subtitle="Score 72/100 based on cipher & protocol audit">
+                <div className="flex flex-col items-center justify-center py-2">
+                  <div className="relative w-44 h-32 flex items-center justify-center">
+                    <svg className="w-44 h-44 -rotate-90" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#E5DFD8" strokeWidth="10" strokeDasharray="251.2" strokeDashoffset="125.6" strokeLinecap="round" />
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#DD6E2D" strokeWidth="10" strokeDasharray="251.2" strokeDashoffset={125.6 + (125.6 * (1 - 0.72))} strokeLinecap="round" />
+                    </svg>
+                    <div className="absolute top-8 flex flex-col items-center">
+                      <span className="text-3xl font-extrabold text-[#17151A]">72</span>
+                      <span className="text-[10px] font-semibold text-[#77727A] uppercase">Score / 100</span>
+                    </div>
+                  </div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <SecurityBadge level="MEDIUM RISK" size="sm" />
+                    <span className="text-xs text-[#77727A]">Threat Vector: Elevated</span>
+                  </div>
+                  <div className="w-full grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-[#E5DFD8] text-center text-xs">
+                    <div className="p-2 bg-[#F5F3F1] rounded"><span className="text-[10px] text-[#77727A] block">Cipher</span><span className="font-bold text-[#DD6E2D]">64/100</span></div>
+                    <div className="p-2 bg-[#F5F3F1] rounded"><span className="text-[10px] text-[#77727A] block">Protocol</span><span className="font-bold text-[#844c12]">76/100</span></div>
+                    <div className="p-2 bg-[#F5F3F1] rounded"><span className="text-[10px] text-[#77727A] block">Cert PKI</span><span className="font-bold text-[#166534]">88/100</span></div>
+                  </div>
+                </div>
+              </ChartCard>
+            </div>
+
+            <div className="lg:col-span-5">
+              <ChartCard title="Security Score Trend" subtitle="Historical assessment points" action={<span className="text-xs font-mono text-[#77727A] flex items-center gap-1"><Icon name="history" size={13} /> 6 PCAP Runs</span>}>
+                <div className="h-44 w-full flex flex-col justify-between pt-2">
+                  <div className="relative h-32 w-full">
+                    <svg className="w-full h-full overflow-visible" viewBox="0 0 320 120" preserveAspectRatio="none">
+                      <line x1="0" y1="20" x2="320" y2="20" stroke="#E5DFD8" strokeDasharray="3 3" />
+                      <line x1="0" y1="60" x2="320" y2="60" stroke="#E5DFD8" strokeDasharray="3 3" />
+                      <line x1="0" y1="100" x2="320" y2="100" stroke="#E5DFD8" strokeDasharray="3 3" />
+                      <polygon points="20,40 80,48 140,54 200,66 260,80 300,74 300,110 20,110" fill="#EDDEC2" fillOpacity="0.4" />
+                      <polyline fill="none" stroke="#32004B" strokeWidth="2.5" points="20,40 80,48 140,54 200,66 260,80 300,74" />
+                      {[{cx:20,cy:40,v:84},{cx:80,cy:48,v:81},{cx:140,cy:54,v:79},{cx:200,cy:66,v:75},{cx:260,cy:80,v:70},{cx:300,cy:74,v:72,active:true}].map((p,i) => (
+                        <g key={i}>
+                          <circle cx={p.cx} cy={p.cy} r={p.active ? 5 : 3.5} fill={p.active ? "#DD6E2D" : "#32004B"} stroke="#fff" strokeWidth="2" />
+                          <text x={p.cx} y={p.cy - 7} textAnchor="middle" fontSize="9" fontWeight={p.active ? "bold" : "normal"} fill={p.active ? "#DD6E2D" : "#17151A"} fontFamily="monospace">{p.v}</text>
+                        </g>
+                      ))}
+                    </svg>
+                  </div>
+                  <div className="flex justify-between text-[10px] text-[#77727A] font-mono border-t border-[#E5DFD8] pt-1.5">
+                    <span>Sep 12</span><span>Sep 16</span><span>Sep 20</span><span>Sep 24</span><span>Sep 27</span><span className="font-bold text-[#DD6E2D]">Sep 29</span>
+                  </div>
+                </div>
+              </ChartCard>
+            </div>
+
+            <div className="lg:col-span-3">
+              <ChartCard title="Key Findings Breakdown" subtitle="Aggregated severity distribution">
+                <div className="space-y-2.5 py-1">
+                  <div onClick={() => onNavigate('findings')} className="p-2.5 rounded-lg border border-[#DD6E2D]/30 bg-[#DD6E2D]/5 hover:bg-[#DD6E2D]/10 cursor-pointer flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#DD6E2D]" />
+                      <div><div className="text-xs font-bold text-[#17151A]">HIGH SEVERITY</div><div className="text-[11px] text-[#77727A]">3DES SWEET32 Cipher</div></div>
+                    </div>
+                    <span className="text-lg font-bold text-[#DD6E2D] font-mono">1</span>
+                  </div>
+                  <div onClick={() => onNavigate('findings')} className="p-2.5 rounded-lg border border-[#d8c3a1] bg-[#EDDEC2]/40 hover:bg-[#EDDEC2]/60 cursor-pointer flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#844c12]" />
+                      <div><div className="text-xs font-bold text-[#17151A]">MEDIUM SEVERITY</div><div className="text-[11px] text-[#77727A]">TLS 1.0 & Cert Failure</div></div>
+                    </div>
+                    <span className="text-lg font-bold text-[#844c12] font-mono">2</span>
+                  </div>
+                  <div onClick={() => onNavigate('findings')} className="p-2.5 rounded-lg border border-[#E5DFD8] bg-[#F5F3F1] hover:bg-[#eae6e1] cursor-pointer flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#77727A]" />
+                      <div><div className="text-xs font-bold text-[#17151A]">LOW SEVERITY</div><div className="text-[11px] text-[#77727A]">STARTTLS & 1024-DH</div></div>
+                    </div>
+                    <span className="text-lg font-bold text-[#242126] font-mono">3</span>
+                  </div>
+                </div>
+              </ChartCard>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-sm font-bold text-[#17151A]">Protocol Security Overview</h3>
+                <p className="text-xs text-[#77727A]">SMTP | IMAP | POP3 with live status indicators</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => onNavigate('protocols')}>All Protocols</Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <ProtocolCard protocol="SMTP" status="SECURE" connections={21} tlsVersion="TLS 1.3" cipherSuite="AES-256-GCM" starttls="Enabled" certificate="Valid" aiRisk="Low" onInspect={() => onNavigate('protocols')} />
+              <ProtocolCard protocol="IMAP" status="WARNING" connections={17} tlsVersion="TLS 1.2" cipherSuite="AES-128-GCM" starttls="Enabled" certificate="Valid" aiRisk="Medium" onInspect={() => onNavigate('protocols')} />
+              <ProtocolCard protocol="POP3" status="CRITICAL" connections={8} tlsVersion="TLS 1.0" cipherSuite="Weak Cipher" starttls="Misconfigured" certificate="Issue Detected" aiRisk="High" onInspect={() => onNavigate('protocols')} />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- SCREEN 2: PCAP ANALYSIS ---
+    function ScreenPCAP({ onNavigate }) {
+      const [analyzing, setAnalyzing] = useState(false);
+      const [done, setDone] = useState(true);
+
+      const triggerAnalyze = () => {
+        setAnalyzing(true);
+        setDone(false);
+        setTimeout(() => {
+          setAnalyzing(false);
+          setDone(true);
+        }, 1800);
+      };
+
+      return (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-7">
+              <ChartCard title="Upload PCAP File" subtitle="Analyze captured email traffic and identify cryptographic security weaknesses.">
+                <div className="border-2 border-dashed border-[#E5DFD8] hover:border-[#DD6E2D]/60 rounded-[10px] p-8 flex flex-col items-center justify-center text-center bg-[#F5F3F1]/40 transition-colors cursor-pointer">
+                  <div className="w-14 h-14 rounded-full bg-white border border-[#E5DFD8] flex items-center justify-center text-[#32004B] shadow-xs">
+                    <Icon name="upload-cloud" size={28} />
+                  </div>
+                  <div className="mt-4 space-y-1">
+                    <h4 className="text-sm font-bold text-[#17151A]">Drop your PCAP file here</h4>
+                    <p className="text-xs text-[#77727A]">or browse from your computer</p>
+                  </div>
+                  <div className="mt-4">
+                    <Button variant="outline" size="sm">Browse File</Button>
+                  </div>
+                </div>
+
+                <div className="mt-4 p-4 rounded-lg bg-white border border-[#E5DFD8] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-lg bg-[#32004B] text-[#EDDEC2]"><Icon name="file-code" size={20} /></div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-[#17151A] font-mono">secure_email.pcap</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-semibold font-mono">4.82 MB</span>
+                      </div>
+                      <div className="text-[11px] text-[#77727A] font-mono mt-0.5">Upload Status: 100% Uploaded • Ready</div>
+                    </div>
+                  </div>
+
+                  <Button variant="primary" size="md" onClick={triggerAnalyze} disabled={analyzing}>
+                    {analyzing ? 'Analyzing PCAP...' : 'Analyze PCAP'}
+                  </Button>
+                </div>
+              </ChartCard>
+            </div>
+
+            <div className="lg:col-span-5">
+              <ChartCard title="Parsing Parameters" subtitle="Cryptographic telemetry extraction">
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between p-2.5 rounded bg-[#F5F3F1] border border-[#E5DFD8]"><span>Dissection Layer</span><span className="font-mono font-semibold text-[#166534]">Layer 7 (Application Transport)</span></div>
+                  <div className="flex justify-between p-2.5 rounded bg-[#F5F3F1] border border-[#E5DFD8]"><span>Handshake Extraction</span><span className="font-mono font-semibold text-[#32004B]">ClientHello / ServerHello</span></div>
+                  <div className="flex justify-between p-2.5 rounded bg-[#F5F3F1] border border-[#E5DFD8]"><span>Privacy Guard</span><span className="font-mono font-semibold text-[#166534]">Payload Body Omitted</span></div>
+                </div>
+                <div className="mt-4 p-3 rounded bg-[#EDDEC2]/40 border border-[#d8c3a1] text-xs text-[#844c12]">
+                  <strong>Zero-Payload Inspection:</strong> Only cryptographic parameters (ciphers, extensions, protocols, certificates) are inspected. Email message bodies are never read.
+                </div>
+              </ChartCard>
+            </div>
+          </div>
+
+          {done && (
+            <div className="space-y-4">
+              <div className="p-4 rounded-[10px] bg-white border border-[#E5DFD8] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-[#166534] flex items-center justify-center">
+                    <Icon name="circle-check" size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[#17151A]">Analysis completed successfully</h3>
+                    <p className="text-xs text-[#77727A]">Extracted 46 TLS handshakes across SMTP, IMAP, and POP3 streams.</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="secondary" size="sm" onClick={() => onNavigate('findings')}>View Findings</Button>
+                  <Button variant="brand" size="sm" onClick={() => onNavigate('tls')}>View TLS Details</Button>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-bold text-[#17151A] mb-3">Analysis Results</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                  <StatCard title="Packets Analyzed" value="1,284" subtitle="Parsed frames" />
+                  <StatCard title="TLS Connections" value="46" subtitle="Captured streams" />
+                  <StatCard title="SMTP Connections" value="21" subtitle="Port 587/25" />
+                  <StatCard title="IMAP Connections" value="17" subtitle="Port 993" />
+                  <StatCard title="POP3 Connections" value="8" subtitle="Port 995" />
+                  <StatCard title="Processing Time" value="2.41 sec" subtitle="Engine speed" />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- SCREEN 3: PROTOCOLS ---
+    function ScreenProtocols({ onNavigate }) {
+      return (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <ProtocolCard protocol="SMTP" status="SECURE" connections={21} tlsVersion="TLS 1.3" cipherSuite="AES-256-GCM" starttls="Enabled" certificate="Valid" aiRisk="Low" />
+            <ProtocolCard protocol="IMAP" status="WARNING" connections={17} tlsVersion="TLS 1.2" cipherSuite="AES-128-GCM" starttls="Enabled" certificate="Valid" aiRisk="Medium" />
+            <ProtocolCard protocol="POP3" status="CRITICAL" connections={8} tlsVersion="TLS 1.0" cipherSuite="Weak Cipher" starttls="Misconfigured" certificate="Issue Detected" aiRisk="High" />
+          </div>
+
+          <ChartCard title="Protocol Cryptographic Posture Matrix" subtitle="Detailed security comparison across mail transmission channels">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#F5F3F1] border-b border-[#E5DFD8] text-[#77727A] uppercase font-semibold">
+                    <th className="py-3 px-4">Protocol</th>
+                    <th className="py-3 px-4">Connections</th>
+                    <th className="py-3 px-4">TLS Version</th>
+                    <th className="py-3 px-4">Cipher Suite</th>
+                    <th className="py-3 px-4">STARTTLS</th>
+                    <th className="py-3 px-4">Certificate</th>
+                    <th className="py-3 px-4">AI Risk</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E5DFD8]">
+                  <tr className="hover:bg-[#F5F3F1]/50">
+                    <td className="py-3 px-4 font-bold text-[#17151A]">SMTP</td>
+                    <td className="py-3 px-4 font-mono">21</td>
+                    <td className="py-3 px-4 font-mono font-semibold text-[#166534]">TLS 1.3</td>
+                    <td className="py-3 px-4 font-mono">AES-256-GCM</td>
+                    <td className="py-3 px-4 font-semibold text-[#166534]">Enabled</td>
+                    <td className="py-3 px-4 font-semibold text-[#166534]">Valid</td>
+                    <td className="py-3 px-4"><SecurityBadge level="SECURE" /></td>
+                  </tr>
+                  <tr className="hover:bg-[#F5F3F1]/50">
+                    <td className="py-3 px-4 font-bold text-[#17151A]">IMAP</td>
+                    <td className="py-3 px-4 font-mono">17</td>
+                    <td className="py-3 px-4 font-mono font-semibold text-[#844c12]">TLS 1.2</td>
+                    <td className="py-3 px-4 font-mono">AES-128-GCM</td>
+                    <td className="py-3 px-4 font-semibold text-[#166534]">Enabled</td>
+                    <td className="py-3 px-4 font-semibold text-[#166534]">Valid</td>
+                    <td className="py-3 px-4"><SecurityBadge level="WARNING" /></td>
+                  </tr>
+                  <tr className="hover:bg-[#F5F3F1]/50">
+                    <td className="py-3 px-4 font-bold text-[#17151A]">POP3</td>
+                    <td className="py-3 px-4 font-mono">8</td>
+                    <td className="py-3 px-4 font-mono font-semibold text-[#DD6E2D]">TLS 1.0 (Obsolete)</td>
+                    <td className="py-3 px-4 font-mono text-[#DD6E2D]">Weak Cipher (3DES)</td>
+                    <td className="py-3 px-4 font-semibold text-[#DD6E2D]">Misconfigured</td>
+                    <td className="py-3 px-4 font-semibold text-[#DD6E2D]">Issue Detected</td>
+                    <td className="py-3 px-4"><SecurityBadge level="CRITICAL" /></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ChartCard>
+        </div>
+      );
+    }
+
+    // --- SCREEN 4: TLS SECURITY ANALYSIS ---
+    function ScreenTLS() {
+      return (
+        <div className="space-y-6">
+          <div className="p-4 rounded-[10px] bg-[#EDDEC2] border border-[#d8c3a1] flex items-start gap-3">
+            <div className="p-2 rounded bg-[#32004B] text-[#EDDEC2] mt-0.5"><Icon name="info" size={18} /></div>
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#32004B] font-mono">Security Observation</h3>
+              <p className="text-xs text-[#242126] mt-0.5 leading-relaxed">
+                "Legacy TLS and weak cryptographic configurations were detected in a subset of analyzed connections."
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div className="lg:col-span-4">
+              <ChartCard title="TLS Coverage" subtitle="Encrypted Traffic Coverage">
+                <div className="flex flex-col items-center justify-center py-4">
+                  <div className="relative w-44 h-44 flex items-center justify-center">
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#E5DFD8" strokeWidth="8" />
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#32004B" strokeWidth="8" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - 0.94)} strokeLinecap="round" />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                      <span className="text-4xl font-extrabold text-[#17151A]">94%</span>
+                      <span className="text-[11px] font-semibold text-[#77727A] max-w-[110px] leading-tight mt-1">Encrypted Traffic Coverage</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 text-xs text-[#242126] font-medium flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    43 of 46 connections encrypted
+                  </div>
+                </div>
+              </ChartCard>
+            </div>
+
+            <div className="lg:col-span-4">
+              <ChartCard title="TLS Version Distribution" subtitle="Identify obsolete TLS versions">
+                <div className="space-y-4 py-2 text-xs">
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-[#17151A] flex items-center gap-1.5 font-mono"><span className="w-2 h-2 rounded-full bg-[#32004B]" />TLS 1.3</span>
+                      <span className="font-bold font-mono">65%</span>
+                    </div>
+                    <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#E5DFD8]/60">
+                      <div className="bg-[#32004B] h-3 rounded-full" style={{ width: '65%' }} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-[#17151A] flex items-center gap-1.5 font-mono"><span className="w-2 h-2 rounded-full bg-[#77727A]" />TLS 1.2</span>
+                      <span className="font-bold font-mono">29%</span>
+                    </div>
+                    <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#E5DFD8]/60">
+                      <div className="bg-[#77727A] h-3 rounded-full" style={{ width: '29%' }} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-[#DD6E2D] flex items-center gap-1.5 font-mono"><span className="w-2 h-2 rounded-full bg-[#DD6E2D]" />TLS 1.0 (Obsolete)</span>
+                      <span className="font-bold font-mono text-[#DD6E2D]">6%</span>
+                    </div>
+                    <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#DD6E2D]/30">
+                      <div className="bg-[#DD6E2D] h-3 rounded-full" style={{ width: '6%' }} />
+                    </div>
+                    <span className="text-[10px] text-[#DD6E2D] font-bold">RFC 8996 Deprecated • High Exposure</span>
+                  </div>
+                </div>
+              </ChartCard>
+            </div>
+
+            <div className="lg:col-span-4">
+              <ChartCard title="Cipher Suite Classification" subtitle="Classification: Strong, Acceptable, Weak">
+                <div className="space-y-4 py-2 text-xs">
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-[#166534] flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#166534]" />Strong</span>
+                      <span className="font-bold font-mono text-[#166534]">67.4%</span>
+                    </div>
+                    <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#E5DFD8]/60">
+                      <div className="bg-[#166534] h-3 rounded-full" style={{ width: '67.4%' }} />
+                    </div>
+                    <span className="text-[10px] text-[#77727A] font-mono">AES-256-GCM, CHACHA20-POLY1305</span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-[#844c12] flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#844c12]" />Acceptable</span>
+                      <span className="font-bold font-mono text-[#844c12]">26.1%</span>
+                    </div>
+                    <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#E5DFD8]/60">
+                      <div className="bg-[#844c12] h-3 rounded-full" style={{ width: '26.1%' }} />
+                    </div>
+                    <span className="text-[10px] text-[#77727A] font-mono">AES-128-GCM</span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-[#DD6E2D] flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#DD6E2D]" />Weak</span>
+                      <span className="font-bold font-mono text-[#DD6E2D]">6.5%</span>
+                    </div>
+                    <div className="w-full bg-[#F5F3F1] rounded-full h-3 overflow-hidden border border-[#DD6E2D]/30">
+                      <div className="bg-[#DD6E2D] h-3 rounded-full" style={{ width: '6.5%' }} />
+                    </div>
+                    <span className="text-[10px] text-[#DD6E2D] font-mono font-semibold">3DES-EDE-CBC-SHA (SWEET32)</span>
+                  </div>
+                </div>
+              </ChartCard>
+            </div>
+          </div>
+
+          <ChartCard title="STARTTLS Usage" subtitle="Comparison of opportunistic transport encryption across mail agents">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-2">
+              <div className="p-4 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8] space-y-2">
+                <div className="flex justify-between text-xs font-mono">
+                  <span className="font-bold text-[#17151A]">SMTP</span>
+                  <span className="font-bold text-[#166534] text-base">95%</span>
+                </div>
+                <div className="w-full bg-white rounded-full h-2.5 overflow-hidden border border-[#E5DFD8]">
+                  <div className="bg-[#166534] h-2.5 rounded-full" style={{ width: '95%' }} />
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8] space-y-2">
+                <div className="flex justify-between text-xs font-mono">
+                  <span className="font-bold text-[#17151A]">IMAP</span>
+                  <span className="font-bold text-[#32004B] text-base">91%</span>
+                </div>
+                <div className="w-full bg-white rounded-full h-2.5 overflow-hidden border border-[#E5DFD8]">
+                  <div className="bg-[#32004B] h-2.5 rounded-full" style={{ width: '91%' }} />
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-[#EDDEC2]/40 border border-[#d8c3a1] space-y-2">
+                <div className="flex justify-between text-xs font-mono">
+                  <span className="font-bold text-[#17151A]">POP3</span>
+                  <span className="font-bold text-[#DD6E2D] text-base">72%</span>
+                </div>
+                <div className="w-full bg-white rounded-full h-2.5 overflow-hidden border border-[#E5DFD8]">
+                  <div className="bg-[#DD6E2D] h-2.5 rounded-full" style={{ width: '72%' }} />
+                </div>
+              </div>
+            </div>
+          </ChartCard>
+        </div>
+      );
+    }
+
+    // --- SCREEN 5: FINDINGS ---
+    function ScreenFindings() {
+      return (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div className="p-4 rounded-[10px] bg-white border border-[#DD6E2D]/40 border-l-4 border-l-[#DD6E2D] flex items-center justify-between">
+              <div><span className="text-[10px] font-bold text-[#77727A] uppercase font-mono">High Severity</span><div className="text-xl font-bold text-[#DD6E2D] mt-0.5">1 Finding</div></div>
+              <div className="p-2 rounded bg-[#DD6E2D]/10 text-[#DD6E2D]"><Icon name="shield-alert" size={20} /></div>
+            </div>
+            <div className="p-4 rounded-[10px] bg-white border border-[#d8c3a1] border-l-4 border-l-[#844c12] flex items-center justify-between">
+              <div><span className="text-[10px] font-bold text-[#77727A] uppercase font-mono">Medium Severity</span><div className="text-xl font-bold text-[#844c12] mt-0.5">2 Findings</div></div>
+              <div className="p-2 rounded bg-[#EDDEC2] text-[#844c12]"><Icon name="alert-triangle" size={20} /></div>
+            </div>
+            <div className="p-4 rounded-[10px] bg-white border border-[#E5DFD8] border-l-4 border-l-[#77727A] flex items-center justify-between">
+              <div><span className="text-[10px] font-bold text-[#77727A] uppercase font-mono">Low Severity</span><div className="text-xl font-bold text-[#242126] mt-0.5">2 Findings</div></div>
+              <div className="p-2 rounded bg-[#F5F3F1] text-[#77727A]"><Icon name="info" size={20} /></div>
+            </div>
+            <div className="p-4 rounded-[10px] bg-[#32004B] text-white flex items-center justify-between">
+              <div><span className="text-[10px] font-bold text-[#EDDEC2] uppercase font-mono">Total Issues</span><div className="text-xl font-bold font-mono mt-0.5">5 Issues</div></div>
+              <Icon name="shield" size={20} className="text-[#EDDEC2]" />
+            </div>
+          </div>
+
+          <ChartCard title="Security Findings" subtitle="Enterprise vulnerability table with cryptographic evidence">
+            <FindingTable showFilters={true} />
+          </ChartCard>
+        </div>
+      );
+    }
+
+    // --- SCREEN 6: AI SECURITY ANALYSIS ---
+    function ScreenAI({ onNavigate }) {
+      const models = [
+        {
+          id: '1',
+          name: 'TLS Version Classifier',
+          prediction: 'MODERN',
+          confidence: 96.2,
+          icon: 'cpu',
+          desc: 'Classifies protocol handshake tokens against RFC 8446 standard.'
+        },
+        {
+          id: '2',
+          name: 'Cipher Security Classifier',
+          prediction: 'WEAK',
+          confidence: 91.4,
+          icon: 'brain',
+          desc: 'Evaluates block size, MAC integrity, and AEAD security parameters.'
+        },
+        {
+          id: '3',
+          name: 'Certificate Risk Detector',
+          prediction: 'LOW RISK',
+          confidence: 94.8,
+          icon: 'shield-check',
+          desc: 'Audits X.509 PKI chain, SAN matching, and authority validity.'
+        },
+        {
+          id: '4',
+          name: 'Overall Security Risk Model',
+          prediction: 'MEDIUM RISK',
+          confidence: 89.7,
+          icon: 'brain',
+          desc: 'Ensemble model predicting holistic mail security posture score.'
+        }
+      ];
+
+      return (
+        <div className="space-y-6">
+          <div className="p-4 rounded-[10px] bg-[#EDDEC2] border border-[#d8c3a1] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded bg-[#32004B] text-[#EDDEC2] mt-0.5"><Icon name="brain" size={20} /></div>
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#32004B] font-mono">Machine Learning Posture Inference</h3>
+                <p className="text-xs text-[#242126] mt-0.5">Machine-learning models used to classify cryptographic security posture.</p>
+              </div>
+            </div>
+            <Button variant="brand" size="sm" icon="arrow-right" onClick={() => onNavigate('explainability')}>Explain Model (SHAP)</Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {models.map(m => (
+              <div key={m.id} className="enterprise-card p-5 space-y-4">
+                <div className="flex items-start justify-between pb-3 border-b border-[#E5DFD8]">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-lg bg-[#32004B] text-[#EDDEC2]">
+                      <Icon name={m.icon} size={18} />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-[#17151A]">{m.name}</h4>
+                      <span className="text-[11px] text-[#77727A] font-mono">Status: Inference Active</span>
+                    </div>
+                  </div>
+                  <span className="text-xs text-[#166534] font-medium font-mono flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Online
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 p-3 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8]">
+                  <div>
+                    <span className="text-[10px] font-bold text-[#77727A] uppercase font-mono block">Prediction</span>
+                    <div className="mt-1"><SecurityBadge level={m.prediction} /></div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-[10px] font-bold text-[#77727A] uppercase font-mono">Confidence</span>
+                      <span className="font-mono font-bold text-[#17151A]">{m.confidence}%</span>
+                    </div>
+                    <div className="w-full bg-[#E5DFD8] rounded-full h-2 mt-1.5 overflow-hidden">
+                      <div className={`h-2 rounded-full ${m.confidence > 92 ? 'bg-[#32004B]' : 'bg-[#DD6E2D]'}`} style={{ width: `${m.confidence}%` }} />
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-xs text-[#242126]">{m.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // --- SCREEN 7: SHAP EXPLAINABILITY ---
+    function ScreenExplainability() {
+      const shapItems = [
+        { feature: 'Weak Cipher Suite', value: '+0.31', score: 0.31, primary: true },
+        { feature: 'TLS Version', value: '+0.24', score: 0.24, primary: false },
+        { feature: 'Certificate Validity', value: '+0.15', score: 0.15, primary: false },
+        { feature: 'STARTTLS Configuration', value: '+0.10', score: 0.10, primary: false },
+        { feature: 'Key Exchange', value: '+0.04', score: 0.04, primary: false }
+      ];
+
+      return (
+        <div className="space-y-6">
+          <div className="p-5 rounded-[10px] bg-[#EDDEC2] border border-[#d8c3a1] space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#d8c3a1] pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-[#32004B]">Why was this classified as MEDIUM RISK?</h3>
+                <p className="text-xs text-[#242126] mt-0.5">
+                  "The model identified weak cipher configuration as the primary contributing feature, followed by the detected TLS version and certificate-related characteristics."
+                </p>
+              </div>
+              <div className="bg-white px-3 py-1.5 rounded-lg border border-[#d8c3a1]">
+                <span className="text-[10px] text-[#77727A] font-semibold uppercase block">Primary contributing factor</span>
+                <span className="text-xs font-bold text-[#DD6E2D] font-mono">Weak Cipher Suite</span>
+              </div>
+            </div>
+          </div>
+
+          <ChartCard title="SHAP Feature Importance" subtitle="Understand which security features influenced the model prediction.">
+            <div className="space-y-4 py-3">
+              {shapItems.map(item => {
+                const widthPct = (item.score / 0.40) * 100;
+                return (
+                  <div key={item.feature} className="space-y-1.5">
+                    <div className="flex justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-[#17151A]">{item.feature}</span>
+                        {item.primary && <span className="text-[9px] px-1.5 bg-[#DD6E2D]/15 text-[#DD6E2D] font-bold rounded font-mono">TOP FACTOR</span>}
+                      </div>
+                      <span className="font-mono font-bold text-[#DD6E2D] bg-[#DD6E2D]/10 px-2 py-0.5 rounded border border-[#DD6E2D]/20">
+                        {item.value}
+                      </span>
+                    </div>
+                    <div className="w-full bg-[#F5F3F1] rounded-full h-3.5 overflow-hidden border border-[#E5DFD8]">
+                      <div className={`h-3.5 rounded-full ${item.primary ? 'bg-[#DD6E2D]' : item.score > 0.15 ? 'bg-[#32004B]' : 'bg-[#77727A]'}`} style={{ width: `${widthPct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-4 pt-3 border-t border-[#E5DFD8] text-xs text-[#77727A] flex items-center justify-between font-mono">
+              <span>Attribution standard: SHapley Additive exPlanations</span>
+              <span>Baseline E[f(X)]: 0.18</span>
+            </div>
+          </ChartCard>
+        </div>
+      );
+    }
+
+    // --- SCREEN 8: SECURITY REPORT ---
+    function ScreenReports() {
+      const [toast, setToast] = useState(null);
+
+      const triggerExport = (fmt) => {
+        setToast(`Exported report in ${fmt} format successfully.`);
+        setTimeout(() => setToast(null), 2500);
+      };
+
+      return (
+        <div className="space-y-6">
+          <div className="p-4 rounded-[10px] bg-white border border-[#E5DFD8] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-sm font-bold text-[#17151A]">Security Assessment Report</h2>
+              <p className="text-xs text-[#77727A]">Auditor-ready report generation for CISO and compliance teams</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="primary" size="sm" icon="file-down" onClick={() => triggerExport('PDF')}>Export PDF</Button>
+              <Button variant="outline" size="sm" icon="file-json" onClick={() => triggerExport('JSON')}>Export JSON</Button>
+              <Button variant="outline" size="sm" icon="file-spreadsheet" onClick={() => triggerExport('CSV')}>Export CSV</Button>
+            </div>
+          </div>
+
+          {toast && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-xs flex items-center gap-2">
+              <Icon name="check-circle" size={16} />
+              <span>{toast}</span>
+            </div>
+          )}
+
+          <div className="bg-white border border-[#E5DFD8] rounded-[10px] shadow-sm max-w-4xl mx-auto overflow-hidden">
+            <div className="bg-[#32004B] text-white px-8 py-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-b-[#DD6E2D]">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-[#DD6E2D] text-white flex items-center justify-center shadow-md">
+                  <Icon name="shield" size={26} />
+                </div>
+                <div>
+                  <h1 className="text-xl font-extrabold tracking-tight font-sans text-white">SecureMailScope</h1>
+                  <p className="text-xs text-[#EDDEC2] font-medium">Cryptographic Security Assessment</p>
+                </div>
+              </div>
+              <div className="text-xs text-[#EDDEC2] font-mono">
+                Ref: SMS-AUDIT-2026-0929
+              </div>
+            </div>
+
+            <div className="p-8 space-y-7 text-xs text-[#242126]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-lg bg-[#F5F3F1] border border-[#E5DFD8]">
+                <div>
+                  <span className="text-[10px] font-bold text-[#77727A] uppercase font-mono block">PCAP</span>
+                  <span className="font-mono font-bold text-sm text-[#17151A]">secure_email.pcap</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-[#77727A] uppercase font-mono block">Overall Risk</span>
+                  <div className="mt-1"><SecurityBadge level="MEDIUM RISK" /></div>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-[#77727A] uppercase font-mono block">Protocols</span>
+                  <span className="font-mono font-bold text-sm text-[#32004B]">SMTP · IMAP · POP3</span>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xs font-bold text-[#17151A] uppercase tracking-wider font-mono border-b border-[#E5DFD8] pb-1.5 mb-3">
+                  Findings Summary
+                </h3>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="p-3 bg-[#DD6E2D]/10 rounded border border-[#DD6E2D]/30"><span className="text-xs font-bold text-[#DD6E2D]">High: 1</span></div>
+                  <div className="p-3 bg-[#EDDEC2] rounded border border-[#d8c3a1]"><span className="text-xs font-bold text-[#844c12]">Medium: 2</span></div>
+                  <div className="p-3 bg-[#F5F3F1] rounded border border-[#E5DFD8]"><span className="text-xs font-bold text-[#242126]">Low: 3</span></div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xs font-bold text-[#17151A] uppercase tracking-wider font-mono border-b border-[#E5DFD8] pb-1.5 mb-3">
+                  Key Observations
+                </h3>
+                <ul className="space-y-2 text-xs">
+                  <li className="flex items-center gap-2"><Icon name="shield-alert" size={15} className="text-[#DD6E2D]" /><span>Weak cipher detected</span></li>
+                  <li className="flex items-center gap-2"><Icon name="alert-triangle" size={15} className="text-[#844c12]" /><span>TLS 1.0 connection detected</span></li>
+                  <li className="flex items-center gap-2"><Icon name="info" size={15} className="text-[#844c12]" /><span>Certificate issue detected</span></li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-xs font-bold text-[#17151A] uppercase tracking-wider font-mono border-b border-[#E5DFD8] pb-1.5 mb-3">
+                  Recommendations
+                </h3>
+                <ol className="space-y-2 list-decimal list-inside text-xs font-medium">
+                  <li>Disable obsolete TLS versions</li>
+                  <li>Remove weak cipher suites</li>
+                  <li>Enforce modern TLS configurations</li>
+                  <li>Ensure valid and auto-renewed certificates</li>
+                </ol>
+              </div>
+            </div>
+
+            <div className="px-8 py-3 bg-[#F5F3F1] border-t border-[#E5DFD8] text-[11px] text-[#77727A] font-mono flex justify-between">
+              <span>SecureMailScope SaaS Posture Engine</span>
+              <span>NIST SP 800-52 Rev 2</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- SCREEN 9: SETTINGS ---
+    function ScreenSettings() {
+      const [saved, setSaved] = useState(false);
+      return (
+        <div className="space-y-6 max-w-3xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-[#17151A]">Settings</h2>
+              <p className="text-xs text-[#77727A]">Configure compliance profiles and audit policies</p>
+            </div>
+            <Button variant="primary" size="sm" onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000); }}>
+              {saved ? 'Saved' : 'Save Changes'}
+            </Button>
+          </div>
+          {saved && <div className="p-3 bg-emerald-50 text-emerald-800 rounded border border-emerald-200 text-xs">Configuration preferences updated.</div>}
+          <ChartCard title="Security Baseline" subtitle="Regulate cipher evaluation baseline">
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center justify-between p-2.5 rounded bg-[#F5F3F1]">
+                <span>Compliance Standard</span>
+                <span className="font-mono font-bold text-[#32004B]">NIST SP 800-52r2</span>
+              </div>
+              <div className="flex items-center justify-between p-2.5 rounded bg-[#F5F3F1]">
+                <span>Minimum Allowed TLS</span>
+                <span className="font-mono font-bold text-[#166534]">TLS 1.2</span>
+              </div>
+            </div>
+          </ChartCard>
+        </div>
+      );
+    }
+
+    // --- MAIN APP COMPONENT ---
+    function App() {
+      const [currentScreen, setCurrentScreen] = useState('dashboard');
+      const [sidebarOpen, setSidebarOpen] = useState(false);
+
+      const navItems = [
+        { id: 'dashboard', name: 'Dashboard', icon: 'layout-dashboard' },
+        { id: 'pcap', name: 'PCAP Analysis', icon: 'file-search' },
+        { id: 'protocols', name: 'Protocols', icon: 'network' },
+        { id: 'tls', name: 'TLS Analysis', icon: 'shield-check' },
+        { id: 'findings', name: 'Findings', icon: 'alert-triangle', badge: '5' },
+        { id: 'ai', name: 'AI Analysis', icon: 'brain' },
+        { id: 'explainability', name: 'Explainability', icon: 'chart-no-axes-combined' },
+        { id: 'reports', name: 'Reports', icon: 'file-text' },
+        { id: 'settings', name: 'Settings', icon: 'settings' },
+      ];
+
+      const titles = {
+        dashboard: { title: 'Security Overview', sub: 'AI-Assisted Cryptographic Security Assessment' },
+        pcap: { title: 'PCAP Analysis', sub: 'Analyze captured email traffic and identify cryptographic security weaknesses.' },
+        protocols: { title: 'Protocol Analysis', sub: 'Cryptographic security assessment for SMTP, IMAP, and POP3' },
+        tls: { title: 'TLS Security Analysis', sub: 'Version distribution, cipher classification, and STARTTLS usage' },
+        findings: { title: 'Security Findings', sub: 'Cryptographic vulnerability inventory and evidence' },
+        ai: { title: 'AI Security Analysis', sub: 'Machine-learning models used to classify cryptographic security posture.' },
+        explainability: { title: 'AI Explainability', sub: 'Understand which security features influenced the model prediction.' },
+        reports: { title: 'Security Assessment Report', sub: 'Auditor-ready cryptographic posture report' },
+        settings: { title: 'Settings', sub: 'Configure compliance and detection policies' },
+      };
+
+      const meta = titles[currentScreen] || titles.dashboard;
+
+      return (
+        <div className="flex h-screen w-screen overflow-hidden bg-[#F5F3F1]">
+          {/* Mobile Overlay */}
+          {sidebarOpen && (
+            <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 z-40 bg-black/50 lg:hidden" />
+          )}
+
+          {/* Sidebar */}
+          <aside className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-[#32004B] text-white flex flex-col justify-between transition-transform duration-200 lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div>
+              <div className="h-16 px-5 flex items-center gap-3 border-b border-white/10">
+                <div className="w-9 h-9 rounded-lg bg-[#DD6E2D] flex items-center justify-center text-white shadow-sm flex-shrink-0">
+                  <Icon name="shield" size={20} />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-base tracking-tight text-white font-sans truncate">SecureMailScope</span>
+                  </div>
+                  <span className="text-[10px] text-[#EDDEC2]/80 truncate font-mono">Posture v2.4 Enterprise</span>
+                </div>
+              </div>
+
+              <nav className="p-3 space-y-1">
+                <div className="px-3 py-1.5 text-[10px] font-bold text-[#EDDEC2]/60 uppercase tracking-widest font-mono">
+                  Navigation
+                </div>
+
+                {navItems.map(item => {
+                  const isActive = currentScreen === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => { setCurrentScreen(item.id); setSidebarOpen(false); }}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-[8px] text-xs font-medium transition-all ${
+                        isActive
+                          ? 'bg-[#EDDEC2] text-[#32004B] font-semibold border-l-4 border-l-[#DD6E2D]'
+                          : 'text-white/80 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon name={item.icon} size={16} className={isActive ? 'text-[#DD6E2D]' : 'text-white/70'} />
+                        <span>{item.name}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {item.badge && (
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold font-mono ${isActive ? 'bg-[#DD6E2D] text-white' : 'bg-white/20 text-[#EDDEC2]'}`}>
+                            {item.badge}
+                          </span>
+                        )}
+                        {isActive && <Icon name="chevron-right" size={13} className="text-[#DD6E2D]" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            <div className="p-4 border-t border-white/10 bg-black/15">
+              <div className="p-2.5 rounded bg-white/5 border border-white/10 text-[11px] text-[#EDDEC2] flex items-center justify-between font-mono">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  TLS Engine Ready
+                </span>
+                <span className="text-white/60">SP800</span>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Area */}
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <header className="h-16 bg-white border-b border-[#E5DFD8] px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30">
+              <div className="flex items-center gap-3">
+                <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded text-[#242126] hover:bg-[#F5F3F1] border border-[#E5DFD8]">
+                  <Icon name="menu" size={18} />
+                </button>
+                <div>
+                  <h1 className="text-base sm:text-lg font-bold text-[#17151A] tracking-tight">{meta.title}</h1>
+                  <p className="text-xs text-[#77727A] hidden sm:block">{meta.sub}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="relative hidden md:block w-56 lg:w-64">
+                  <Icon name="search" size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#77727A]" />
+                  <input
+                    type="text"
+                    placeholder="Search ciphers, CVEs..."
+                    className="w-full pl-9 pr-3 py-1.5 text-xs bg-[#F5F3F1] border border-[#E5DFD8] rounded-[8px] focus:outline-none focus:border-[#DD6E2D] text-[#17151A]"
+                  />
+                </div>
+
+                <Button variant="primary" size="sm" icon="upload-cloud" onClick={() => setCurrentScreen('pcap')} className="hidden sm:inline-flex">
+                  Analyze PCAP
+                </Button>
+
+                <div className="flex items-center gap-2 pl-2 border-l border-[#E5DFD8]">
+                  <div className="w-8 h-8 rounded-full bg-[#32004B] text-[#EDDEC2] flex items-center justify-center font-bold text-xs">
+                    AV
+                  </div>
+                  <div className="hidden lg:block text-left text-xs">
+                    <div className="font-semibold text-[#17151A]">Dr. A. Vance</div>
+                    <div className="text-[10px] text-[#77727A] font-mono">SecOps Cryptography</div>
+                  </div>
+                </div>
+              </div>
+            </header>
+
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+              <div className="max-w-[1440px] mx-auto">
+                {currentScreen === 'dashboard' && <ScreenDashboard onNavigate={setCurrentScreen} />}
+                {currentScreen === 'pcap' && <ScreenPCAP onNavigate={setCurrentScreen} />}
+                {currentScreen === 'protocols' && <ScreenProtocols onNavigate={setCurrentScreen} />}
+                {currentScreen === 'tls' && <ScreenTLS onNavigate={setCurrentScreen} />}
+                {currentScreen === 'findings' && <ScreenFindings onNavigate={setCurrentScreen} />}
+                {currentScreen === 'ai' && <ScreenAI onNavigate={setCurrentScreen} />}
+                {currentScreen === 'explainability' && <ScreenExplainability onNavigate={setCurrentScreen} />}
+                {currentScreen === 'reports' && <ScreenReports onNavigate={setCurrentScreen} />}
+                {currentScreen === 'settings' && <ScreenSettings onNavigate={setCurrentScreen} />}
+              </div>
+            </main>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
